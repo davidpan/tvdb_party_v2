@@ -12,7 +12,7 @@ module TvdbPartyV2
       @overview = options["overview"]
       @network = options["network"]
       @runtime = options["runtime"]
-      @air_time = options['airstime'] if options['airstime']
+      @air_time = options['airstime'] if options['airsTime']
       @imdb_id = options["imdbId"]
       @status = options["status"] if options["status"]
       @airs_dayofweek = options["airsDayOfWeek"]
