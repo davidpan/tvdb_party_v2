@@ -42,7 +42,7 @@ module TvdbPartyV2
       end
     end
 
-    def get_episode(season_number, episode_number)
+    def episode(season_number, episode_number)
       client.get_episode(self, season_number, episode_number)
     end
 

@@ -11,7 +11,6 @@ module TvdbPartyV2
       @number = options["airedEpisodeNumber"]
       @name = options["episodeName"]
       @overview = options["overview"]
-      @thumb = "http://www.thetvdb.com/banners/" + options["filename"] unless options["filename"].nil?
       @director = options["directors"]
       @writer = options["writers"]
       @series_id = options["seriesId"]
@@ -21,6 +20,12 @@ module TvdbPartyV2
         @guest_stars = options["guestStars"]
       else
         @guest_stars = []
+      end
+
+      if options["filename"].nil? || options["filename"].empty?
+        @thumb = nil
+      else
+        @thumb = "http://www.thetvdb.com/banners/" + options["filename"]
       end
 
       begin

@@ -13,7 +13,7 @@ class TvdbPartyV2Test < Minitest::Test
 
   def test_not_exist_episode
     @results = @thetvdb.get_series_by_id(247897) #homeland thetvdb
-    assert_empty @results.get_episode(1,20), "have handle 404 on episode query"
+    assert_empty @results.episode(1,20), "have handle 404 on episode query"
   end
 
   def test_search_show
@@ -33,7 +33,7 @@ class TvdbPartyV2Test < Minitest::Test
 
   def test_first_episode
     @series = @thetvdb.get_series_by_id(247897) #homeland series id
-    assert_equal 4079947,@series.get_episode(1,1).first.id,"homeland first episode"
+    assert_equal 4079947,@series.episode(1,1).first.id,"homeland first episode"
   end
 
   def test_have_season

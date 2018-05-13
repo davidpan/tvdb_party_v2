@@ -39,7 +39,7 @@ r = @thetvdb.search("Homeland")
 puts homeland = @thetvdb.get_series_by_id(r.first["id"])
 
 # get episode
-puts s01e01 = homeland.get_episode(1,1)
+puts s01e01 = homeland.episode(1,1)
 
 #get series fanart – pass in your language
 puts homeland.fanart.first.url
