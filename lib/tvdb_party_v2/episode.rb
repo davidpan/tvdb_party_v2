@@ -26,7 +26,7 @@ module TvdbPartyV2
       begin
         @air_date = Date.parse(options["firstAired"])
       rescue
-        puts 'invalid date'
+        @air_date = 0
       end
 
       if options["siteRating"] && options["siteRating"] > 0
