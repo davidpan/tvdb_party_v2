@@ -12,7 +12,7 @@ module TvdbPartyV2
       @overview = options["overview"]
       @network = options["network"]
       @runtime = options["runtime"]
-      @air_time = options['airstime'] if options['airsTime']
+      @air_time = options['airsTime'] if options['airsTime']
       @imdb_id = options["imdbId"]
       @status = options["status"] if options["status"]
       @airs_dayofweek = options["airsDayOfWeek"]
@@ -36,9 +36,9 @@ module TvdbPartyV2
       end
 
       begin
-        @first_aired = Date.parse(options["firstAired"])
+        @first_aired = Time.parse(options["firstAired"]).to_i
       rescue
-        puts 'invalid date'
+        @first_aired = 0
       end
     end
 

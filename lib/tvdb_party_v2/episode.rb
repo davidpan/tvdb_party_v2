@@ -24,7 +24,7 @@ module TvdbPartyV2
       end
 
       begin
-        @air_date = Date.parse(options["firstAired"])
+        @air_date = Time.parse(options["firstAired"]).to_i
       rescue
         @air_date = 0
       end
