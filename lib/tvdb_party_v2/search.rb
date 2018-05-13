@@ -85,25 +85,6 @@ module TvdbPartyV2
     end
 
 
-    def get_all_episodes(series, page_id = 1)
-      if page_id == 1
-        url = "/series/#{series.id}/episodes"
-      else
-        pp url = "/series/#{series.id}/episodes?page=#{page_id}"
-      end
-      response = self.get(url)
-      if response['links']['next'].nil?
-        data = response["data"]
-      else
-        data << response["data"]
-        get_all_episodes(series, self.language, response['links']['next'].to_s)
-      end
-
-      return [] unless data
-      data.select! {|d| d["airedSeason"] > 0} #去除特殊季部分。
-      data.map {|e| self.get_episode_by_id(e["id"])}
-
-    end
 
     def get_actors(series)
       response = self.get("/series/#{series.id}/actors")

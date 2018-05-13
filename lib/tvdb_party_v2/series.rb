@@ -78,9 +78,6 @@ module TvdbPartyV2
       @seasons ||= client.get_seasons(self)
     end
 
-    def episodes
-      @episodes ||= client.get_all_episodes(self)
-    end
 
     def actors
       @actors ||= client.get_actors(self)
