@@ -1,5 +1,7 @@
 # TvdbPartyV2
 
+[![Gem Version](https://badge.fury.io/rb/tvdb_party_v2.svg)](https://badge.fury.io/rb/tvdb_party_v2)
+
 Simple Ruby library to talk to thetvdb.com API v2
 
 # what is thetvdb.com?
