@@ -75,11 +75,12 @@ module TvdbPartyV2
 
       response = self.get(url)
       return [] unless response["data"]
+      data = []
       if response['links']['next'].nil?
         data = response["data"]
       else
-        data << response["data"]
-        get_episode(series, season_number, episode_number, self.language, response['links']['next'])
+        response["data"].each {|x| data << x}
+        get_episode(series, season_number, episode_number, response['links']['next'])
       end
       data.map {|e| self.get_episode_by_id(e["id"])}
     end
