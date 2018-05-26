@@ -47,7 +47,7 @@ module TvdbPartyV2
     end
 
     def posters
-      @banners_posters ||= client.get_banners(self, 'season')
+      @banners_posters ||= client.get_banners(self, 'poster')
     end
 
     def fanart
@@ -58,21 +58,22 @@ module TvdbPartyV2
       @banners_series ||= client.get_banners(self, 'series')
     end
 
+    def season_banners
+      @banners_season ||= client.get_banners(self, 'season')
+    end
+
     def seasonwide
       @banners_seasonwide ||= client.get_banners(self, 'seasonwide')
     end
 
     def season_posters(season_number)
-      posters.select {|b| b.subkey == season_number.to_s}
+      season_banners.select {|b| b.subkey == season_number.to_s}
     end
 
     def seasonwide_posters(season_number)
       seasonwide.select {|b| b.subkey == season_number.to_s}
     end
 
-    def banners
-      @banners ||= client.get_banners(self)
-    end
 
     def seasons
       @seasons ||= client.get_seasons(self)
