@@ -47,23 +47,23 @@ module TvdbPartyV2
     end
 
     def posters
-      @banners_posters ||= client.get_banners(self, 'poster')
+      client.get_banners(self, 'poster')
     end
 
     def fanart
-      @banners_fanarts ||= client.get_banners(self, 'fanart')
+      client.get_banners(self, 'fanart')
     end
 
     def series_banners
-      @banners_series ||= client.get_banners(self, 'series')
+      client.get_banners(self, 'series')
     end
 
     def season_banners
-      @banners_season ||= client.get_banners(self, 'season')
+      client.get_banners(self, 'season')
     end
 
     def seasonwide
-      @banners_seasonwide ||= client.get_banners(self, 'seasonwide')
+      client.get_banners(self, 'seasonwide')
     end
 
     def season_posters(season_number)
@@ -76,16 +76,16 @@ module TvdbPartyV2
 
 
     def seasons
-      @seasons ||= client.get_seasons(self)
+      client.get_seasons(self)
     end
 
 
     def actors
-      @actors ||= client.get_actors(self)
+      client.get_actors(self)
     end
 
     def season(season_number)
-      @season ||= client.get_episode(self, season_number)
+      client.get_episode(self, season_number)
     end
 
   end
