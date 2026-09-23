@@ -1,43 +1,36 @@
 module TvdbPartyV2
 
   class Series
-    attr_reader :client
-    attr_accessor :id, :name, :overview, :seasons, :first_aired, :genres, :network, :rating, :runtime,
-                  :actors, :banners, :air_time, :imdb_id, :ratingcount, :status, :airs_dayofweek
+    attr_reader :client, :raw
+    attr_accessor :id, :name, :overview, :first_aired, :genres, :network, :rating, :runtime,
+                  :banners, :air_time, :imdb_id, :ratingcount, :status, :airs_dayofweek
 
     def initialize(client, options = {})
       @client = client
+      @raw = options || {}
       @id = options["id"]
-      @name = options["seriesName"]
+      @name = options["name"]
       @overview = options["overview"]
-      @network = options["network"]
-      @runtime = options["runtime"]
+      @network = company_name(options["originalNetwork"])
+      @runtime = options["averageRuntime"]
       @air_time = options['airsTime'] if options['airsTime']
-      @imdb_id = options["imdbId"]
-      @status = options["status"] if options["status"]
-      @airs_dayofweek = options["airsDayOfWeek"]
+      @imdb_id = RemoteId.imdb_from(options["remoteIds"])
+      @status = status_name(options["status"])
+      @airs_dayofweek = options["airsDays"]
 
-      if options["genre"]
-        @genres = options["genre"]
-      else
-        @genres = []
-      end
+      @genres = Array(options["genres"]).map { |g| g.is_a?(Hash) ? g["name"] : g }
 
-      if options["siteRating"] && options["siteRating"] > 0
-        @rating = options["siteRating"].to_f
+      if options["score"] && options["score"] > 0
+        @rating = options["score"].to_f
       else
         @rating = 0
       end
 
-      if options["siteRatingCount"] && options["siteRatingCount"] > 0
-        @ratingcount = options["siteRatingCount"].to_f
-      else
-        @ratingcount = 0
-      end
+      @ratingcount = 0 # v4 不再提供评分计数
 
       begin
-        @first_aired = Time.parse(options["firstAired"]).to_i
-      rescue
+        @first_aired = Time.parse(options["firstAired"].to_s).to_i
+      rescue StandardError
         @first_aired = 0
       end
     end
@@ -74,11 +67,9 @@ module TvdbPartyV2
       seasonwide.select {|b| b.subkey == season_number.to_s}
     end
 
-
     def seasons
       client.get_seasons(self)
     end
-
 
     def actors
       client.get_actors(self)
@@ -88,6 +79,17 @@ module TvdbPartyV2
       client.get_episode(self, season_number)
     end
 
+    private
+
+    def company_name(company)
+      return nil unless company
+      company.is_a?(Hash) ? company["name"] : company
+    end
+
+    def status_name(status)
+      return nil unless status
+      status.is_a?(Hash) ? status["name"] : status
+    end
   end
 
 end

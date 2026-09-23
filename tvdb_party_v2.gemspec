@@ -9,8 +9,8 @@ Gem::Specification.new do |spec|
   spec.authors       = ["David Pan"]
   spec.email         = ["davidpanchina@gmail.com"]
 
-  spec.summary       = %q{Simple Ruby library to talk to thetvdb.com's v2 API.}
-  spec.description   = %q{Simple Ruby library to talk to thetvdb.com's v2 API.}
+  spec.summary       = %q{Simple Ruby library to talk to thetvdb.com's v4 API.}
+  spec.description   = %q{Simple Ruby library to talk to thetvdb.com's v4 API.}
   spec.homepage      = "https://github.com/davidpan/tvdb_party_v2"
   spec.license       = "MIT"
 
@@ -30,6 +30,10 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
 
-  spec.add_development_dependency "bundler", "~> 2.2.23"
+  spec.required_ruby_version = ">= 3.0"
+
+  spec.add_runtime_dependency "httparty", "~> 0.24"
+  spec.add_development_dependency "bundler", ">= 2.0"
   spec.add_development_dependency "rake", "~> 13.0"
+  spec.add_development_dependency "webmock", "~> 3.0"
 end

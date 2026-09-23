@@ -2,12 +2,14 @@
 
 [![Gem Version](https://badge.fury.io/rb/tvdb_party_v2.svg)](https://badge.fury.io/rb/tvdb_party_v2) [![Dependency Status](https://beta.gemnasium.com/badges/github.com/davidpan/tvdb_party_v2.svg)](https://beta.gemnasium.com/projects/github.com/davidpan/tvdb_party_v2)
 
-Simple Ruby library to talk to thetvdb.com API v2
+Simple Ruby library to talk to thetvdb.com API v4. Migrated from the deprecated v2 API (the gem name is kept for continuity). Requires Ruby >= 3.0; tested on Ruby 3.4 and 4.0.
 
 # what is thetvdb.com?
 
 This site is an open tvshow database that can be modified by anybody.
-thetvdb.com api v2.1.2 (https://api.thetvdb.com/swagger)
+thetvdb.com api v4 (https://api4.thetvdb.com/v4, docs: https://thetvdb.github.io/v4-api/)
+
+> The legacy v2 API (api.thetvdb.com) has been decommissioned. v4 requires an API key; personal keys also require an active TheTVDB subscription PIN.
 
 ## Installation
 
@@ -29,8 +31,9 @@ Or install it yourself as:
 
 
 ```ruby
-# connect api
-@thetvdb = TvdbPartyV2::Search.new(apikey,username,userkey)
+# connect api — v4 auth: apikey + optional pin (subscriber keys only)
+@thetvdb = TvdbPartyV2::Search.new(apikey)
+@thetvdb = TvdbPartyV2::Search.new(apikey, pin, 'en')
 
 # search tv show
 r = @thetvdb.search("Homeland")

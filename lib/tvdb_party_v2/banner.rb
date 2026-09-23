@@ -1,33 +1,39 @@
 module TvdbPartyV2
   class Banner
-    attr_accessor :banner_type, :banner_resolution, :subkey, :path, :thumbnail_path, :ratingaverage, :ratingcount
+    attr_accessor :banner_type, :banner_resolution, :subkey, :path, :thumbnail_path, :ratingaverage, :ratingcount, :season_id
 
+    # v4 的图片记录(artwork):image/thumbnail 为路径,type 为整数类型 id
     def initialize(options = {})
-      @banner_type = options["keyType"]
-      @banner_resolution = options["resolution"]
-      @subkey = options["subKey"]
-      @path = options["fileName"]
+      @banner_type = options["type"]
+      @banner_resolution = options["width"] && options["height"] ? "#{options["width"]}x#{options["height"]}" : nil
+      @path = options["image"]
+      @thumbnail_path = options["thumbnail"]
+      @season_id = options["seasonId"]
 
-      if options["ratingsInfo"]["average"] && options["ratingsInfo"]["average"] > 0
-        @ratingaverage = options["ratingsInfo"]["average"].to_f
+      if options["score"] && options["score"] > 0
+        @ratingaverage = options["score"].to_f
       else
         @ratingaverage = 0
       end
 
-      if options["ratingsInfo"]["count"] && options["ratingsInfo"]["count"] > 0
-        @ratingcount = options["ratingsInfo"]["count"]
-      else
-        @ratingcount = 0
-      end
-
+      @ratingcount = 0 # v4 不再提供评分计数
     end
 
     def url
-      "https://www.thetvdb.com/banners/" + @path
+      banner_path_url(@path)
     end
 
     def thumb_url
-      "https://www.thetvdb.com/banners/_cache/" + @path
+      banner_path_url(@thumbnail_path, cache: true)
+    end
+
+    private
+
+    def banner_path_url(path, cache: false)
+      return nil unless path
+      return path if path.start_with?('http')
+      path = "_cache/#{path}" if cache && !path.start_with?('_cache/')
+      "https://www.thetvdb.com/banners/" + path
     end
 
   end

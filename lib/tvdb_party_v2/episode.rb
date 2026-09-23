@@ -7,49 +7,58 @@ module TvdbPartyV2
     def initialize(client, options = {})
       @client = client
       @id = options["id"]
-      @season_number = options["airedSeason"]
-      @number = options["airedEpisodeNumber"]
-      @name = options["episodeName"]
+      @season_number = options["seasonNumber"]
+      @number = options["number"]
+      @name = options["name"]
       @overview = options["overview"]
-      @director = options["directors"]
-      @writer = options["writers"]
       @series_id = options["seriesId"]
-      @season_id = options["airedSeasonID"]
-      @imdb_id = options["imdbId"]
-      if options["guestStars"]
-        @guest_stars = options["guestStars"]
-      else
-        @guest_stars = []
-      end
+      @season_id = season_id_from(options["seasons"])
+      @imdb_id = RemoteId.imdb_from(options["remoteIds"])
+      @guest_stars = guest_stars_from(options["characters"])
 
-      if options["filename"].nil? || options["filename"].empty?
+      if options["image"].nil? || options["image"].empty?
         @thumb = nil
       else
-        @thumb = "http://www.thetvdb.com/banners/" + options["filename"]
+        @thumb = "https://www.thetvdb.com/banners/" + options["image"]
       end
 
+      # v4 剧集记录不再提供导演/编剧字符串数组
+      @director = nil
+      @writer = nil
+
       begin
-        @air_date = Time.parse(options["firstAired"]).to_i
-      rescue
+        @air_date = Time.parse(options["aired"].to_s).to_i
+      rescue StandardError
         @air_date = 0
       end
 
-      if options["siteRating"] && options["siteRating"] > 0
-        @rating = options["siteRating"].to_f
+      if options["score"] && options["score"] > 0
+        @rating = options["score"].to_f
       else
         @rating = 0
       end
 
-      if options["siteRatingCount"] && options["siteRatingCount"] > 0
-        @ratingcount = options["siteRatingCount"]
-      else
-        @ratingcount = 0
-      end
-
+      @ratingcount = 0 # v4 不再提供评分计数
     end
 
     def series
-      client.get_series_by_id(@series.id)
+      client.get_series_by_id(@series_id)
+    end
+
+    private
+
+    def season_id_from(seasons)
+      first = Array(seasons).first
+      first.is_a?(Hash) ? first["id"] : first
+    end
+
+    def guest_stars_from(characters)
+      Array(characters).select do |c|
+        next false unless c.is_a?(Hash)
+        type = c["peopleType"]
+        type = type["name"] if type.is_a?(Hash)
+        type.to_s =~ /guest/i
+      end.map { |c| c["personName"] }
     end
   end
 
