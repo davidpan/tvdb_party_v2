@@ -6,7 +6,7 @@ module TvdbPartyV2
     headers "Content-Type" => "application/json"
     attr_accessor :token, :language
 
-    # v4 认证:apikey 必填,订阅用户可传 pin;不再使用 v2 的 username/userkey
+    # v4 auth: apikey required, subscribers may pass a pin; v2's username/userkey are gone
     def initialize(apikey, pin = nil, language = 'en')
       @language = language
       body = { "apikey" => apikey }
@@ -15,39 +15,44 @@ module TvdbPartyV2
       @token = thetvdb.dig('data', 'token')
     end
 
-    #基于电视剧名称获取thetvdb v4的查询结果
-    def search(series_name)
-      response = self.get("/search?query=#{URI.encode_www_form_component(series_name)}&type=series")
+    # Search series (or movies via type: 'movie') by name
+    def search(series_name, type = 'series')
+      response = self.get("/search?query=#{URI.encode_www_form_component(series_name)}&type=#{type}")
       normalize_results(response)
     end
 
-    #基于imdbid获取thetvdb v4的查询结果(remote_id 形如 imdb-tt1796960)
+    # Search series by imdb id (remote_id looks like imdb-tt1796960)
     def search_by_imdb(imdb_id)
       response = self.get("/search?remote_id=#{RemoteId.for_imdb(imdb_id)}&type=series")
       normalize_results(response)
     end
 
-    #基于电视剧id获取电视剧详细信息
+    # Search movies by name
+    def search_movies(movie_name)
+      search(movie_name, 'movie')
+    end
+
+    # Get series details by series id
     def get_series_by_id(series_id, language = self.language)
-      response = self.get("/series/#{series_id}/extended")
-      if response && response["data"]
-        Series.new(self, response["data"])
-      else
-        nil
-      end
+      fetch_entity("/series/#{series_id}/extended", Series)
     end
 
-    #基于电视剧集id获取每集的详细信息
+    # Get episode details by episode id
     def get_episode_by_id(episode_id, language = self.language)
-      response = self.get("/episodes/#{episode_id}/extended")
-      if response && response["data"]
-        Episode.new(self, response["data"])
-      else
-        nil
-      end
+      fetch_entity("/episodes/#{episode_id}/extended", Episode)
     end
 
-    #基于季数、集数获取集的详细信息(season_type: default/official/alternate/regional)
+    # Get movie details by movie id
+    def get_movie_by_id(movie_id)
+      fetch_entity("/movies/#{movie_id}/extended", Movie)
+    end
+
+    # Get season details (with episodes) by season id
+    def get_season_by_id(season_id)
+      fetch_entity("/seasons/#{season_id}/extended", Season)
+    end
+
+    # Get episodes of a season/episode number (season_type: default/official/alternate/regional)
     def get_episode(series, season_number, episode_number = nil, page = nil, season_type = 'default')
       episodes = []
       loop do
@@ -66,21 +71,21 @@ module TvdbPartyV2
       episodes.map { |e| self.get_episode_by_id(e["id"]) }
     end
 
-    #获取演员(v4 在 series extended 的 characters 中返回)
+    # Get actors (v4 returns them in the series extended record's characters)
     def get_actors(series)
       characters = series_data(series)["characters"]
       return [] unless characters.is_a?(Array)
       characters.collect { |c| Actor.new(c) }
     end
 
-    # 获取季数
+    # Get season numbers
     def get_seasons(series)
       seasons = series_data(series)["seasons"]
       return [] unless seasons.is_a?(Array)
       seasons.map { |s| s.is_a?(Hash) ? s["number"] : s }
     end
 
-    #获取海报、横幅等图片(v4 通过 /series/{id}/artworks,type 为整数 id)
+    # Get posters/banners etc. (v4 uses /series/{id}/artworks with integer type ids)
     def get_banners(series, keyType, subKey = nil)
       url = "/series/#{series.id}/artworks"
       type_id = ARTWORK_TYPES[keyType.to_s.downcase]
@@ -104,6 +109,16 @@ module TvdbPartyV2
       banners
     end
 
+    # List movies (movies are a v4-only entity)
+    def movies(page = nil)
+      url = "/movies"
+      url = url + "?page=#{page}" unless page.nil?
+      response = self.get(url)
+      data = response && response["data"]
+      return [] unless data.is_a?(Array)
+      data.map { |result| Movie.new(self, result) }
+    end
+
     def get(url)
       return self.class.get(url,
                      :headers => {"Authorization" => 'Bearer ' + @token,"Accept-Language" => self.language}).parsed_response
@@ -111,7 +126,7 @@ module TvdbPartyV2
 
     private
 
-    # v4 经典图片类型 id(完整列表见 /artwork/types)
+    # v4 classic artwork type ids (full list at /artwork/types)
     ARTWORK_TYPES = {
       'series' => 1,
       'poster' => 2,
@@ -131,6 +146,11 @@ module TvdbPartyV2
       else
         []
       end
+    end
+
+    def fetch_entity(path, klass)
+      response = self.get(path)
+      response && response["data"] ? klass.new(self, response["data"]) : nil
     end
 
     def series_data(series)

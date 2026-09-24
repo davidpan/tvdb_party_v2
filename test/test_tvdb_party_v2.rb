@@ -45,6 +45,17 @@ class TvdbPartyV2Test < Minitest::Test
     ]
   }.freeze
 
+  MOVIE_BASE = {
+    "id" => 12345,
+    "name" => "Test Movie",
+    "overview" => "A test movie.",
+    "image" => "movies/12345.jpg",
+    "status" => { "id" => 1, "name" => "Released" },
+    "runtime" => 120,
+    "year" => "2024",
+    "score" => 8.1
+  }.freeze
+
   EPISODE_EXTENDED = {
     "id" => 4079947,
     "seriesId" => 247897,
@@ -242,6 +253,76 @@ class TvdbPartyV2Test < Minitest::Test
     assert_equal "https://www.thetvdb.com/banners/posters/247897-2.jpg", posters.first.url
     assert_equal "https://www.thetvdb.com/banners/_cache/posters/247897-2_t.jpg", posters.first.thumb_url
     assert_equal "680x1000", posters.first.banner_resolution
+  end
+
+  def test_movies
+    stub_request(:get, %r{/v4/movies})
+      .to_return(status: 200, headers: { 'Content-Type' => 'application/json' },
+                 body: JSON.dump({ "status" => "success", "data" => [MOVIE_BASE] }))
+    movies = @thetvdb.movies
+    assert_equal 1, movies.size, "movies list"
+    assert_equal TvdbPartyV2::Movie, movies.first.class
+    assert_equal "Test Movie", movies.first.name
+  end
+
+  MOVIE_EXTENDED = {
+    "id" => 12345,
+    "name" => "Test Movie",
+    "overview" => "A test movie.",
+    "status" => { "id" => 1, "name" => "Released" },
+    "runtime" => 120,
+    "year" => "2024",
+    "score" => 8.1,
+    "genres" => [{ "id" => 28, "name" => "Action" }],
+    "remoteIds" => [{ "id" => "tt1234567", "type" => 3, "sourceName" => "IMDb" }],
+    "first_release" => { "country" => "US", "date" => "2024-07-04", "detail" => "" }
+  }.freeze
+
+  def test_get_movie_by_id
+    stub_request(:get, "#{BASE}/movies/12345/extended")
+      .to_return(status: 200, headers: { 'Content-Type' => 'application/json' },
+                 body: JSON.dump({ "status" => "success", "data" => MOVIE_EXTENDED }))
+    movie = @thetvdb.get_movie_by_id(12345)
+    assert_equal TvdbPartyV2::Movie, movie.class
+    assert_equal "tt1234567", movie.imdb_id
+    assert_equal 8.1, movie.rating
+    assert_equal ["Action"], movie.genres
+    assert_equal "Released", movie.status
+    assert_equal true, movie.first_release > 0, "first_release parsed from Release.date"
+  end
+
+  def test_search_movies
+    stub_request(:get, "#{BASE}/search")
+      .with(query: hash_including("type" => "movie", "query" => "Test Movie"))
+      .to_return(status: 200, headers: { 'Content-Type' => 'application/json' },
+                 body: JSON.dump({ "status" => "success", "data" => [{ "id" => "12345", "name" => "Test Movie", "type" => "movie" }] }))
+    results = @thetvdb.search_movies("Test Movie")
+    assert_equal 1, results.size, "search movies"
+    assert_equal "Test Movie", results.first["name"]
+  end
+
+  SEASON_EXTENDED = {
+    "id" => 46249,
+    "number" => 1,
+    "name" => "Season 1",
+    "seriesId" => 247897,
+    "image" => "seasons/247897-1.jpg",
+    "episodes" => [
+      { "id" => 4079947, "seriesId" => 247897, "seasonNumber" => 1, "number" => 1, "name" => "Pilot" },
+      { "id" => 4079948, "seriesId" => 247897, "seasonNumber" => 1, "number" => 2, "name" => "Grace" }
+    ]
+  }.freeze
+
+  def test_get_season_by_id
+    stub_request(:get, "#{BASE}/seasons/46249/extended")
+      .to_return(status: 200, headers: { 'Content-Type' => 'application/json' },
+                 body: JSON.dump({ "status" => "success", "data" => SEASON_EXTENDED }))
+    season = @thetvdb.get_season_by_id(46249)
+    assert_equal TvdbPartyV2::Season, season.class
+    assert_equal 1, season.number
+    assert_equal "Season 1", season.name
+    assert_equal 2, season.episodes.size, "season extended includes episodes"
+    assert_equal 4079947, season.episodes.first.id
   end
 
   def test_thumb_url_no_double_cache_prefix

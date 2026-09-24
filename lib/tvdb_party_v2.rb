@@ -5,6 +5,8 @@ require 'httparty'
 
 directory = File.expand_path(File.dirname(__FILE__))
 require File.join(directory, 'tvdb_party_v2', 'remote_id')
+require File.join(directory, 'tvdb_party_v2', 'movie')
+require File.join(directory, 'tvdb_party_v2', 'season')
 require File.join(directory, 'tvdb_party_v2', 'search')
 require File.join(directory, 'tvdb_party_v2', 'series')
 require File.join(directory, 'tvdb_party_v2', 'episode')

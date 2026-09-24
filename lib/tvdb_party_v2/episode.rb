@@ -22,7 +22,7 @@ module TvdbPartyV2
         @thumb = "https://www.thetvdb.com/banners/" + options["image"]
       end
 
-      # v4 剧集记录不再提供导演/编剧字符串数组
+      # v4 episode records no longer provide director/writer string arrays
       @director = nil
       @writer = nil
 
@@ -38,7 +38,7 @@ module TvdbPartyV2
         @rating = 0
       end
 
-      @ratingcount = 0 # v4 不再提供评分计数
+      @ratingcount = 0 # v4 no longer provides rating counts
     end
 
     def series

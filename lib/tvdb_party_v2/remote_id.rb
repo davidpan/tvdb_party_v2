@@ -1,9 +1,9 @@
 module TvdbPartyV2
-  # v4 remote id 辅助:统一处理 imdb id 与 remote_id 的互转
+  # v4 remote id helpers: imdb id <-> remote_id conversion
   module RemoteId
     module_function
 
-    # 从 remoteIds 数组中提取 imdb id(如 "tt1796960")
+    # Extract the imdb id (e.g. "tt1796960") from a remoteIds array
     def imdb_from(remote_ids)
       Array(remote_ids).each do |r|
         next unless r.is_a?(Hash)
@@ -12,7 +12,7 @@ module TvdbPartyV2
       nil
     end
 
-    # imdb id 转 v4 remote_id 查询格式(如 "imdb-tt1796960")
+    # Convert an imdb id to the v4 remote_id query format (e.g. "imdb-tt1796960")
     def for_imdb(imdb_id)
       id = imdb_id.to_s
       return id if id =~ /\Aimdb-/i

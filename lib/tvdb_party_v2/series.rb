@@ -26,7 +26,7 @@ module TvdbPartyV2
         @rating = 0
       end
 
-      @ratingcount = 0 # v4 不再提供评分计数
+      @ratingcount = 0 # v4 no longer provides rating counts
 
       begin
         @first_aired = Time.parse(options["firstAired"].to_s).to_i

@@ -2,7 +2,7 @@ module TvdbPartyV2
   class Actor
     attr_accessor :id, :name, :role, :image, :sortorder
 
-    # v4 的演员信息来自 series extended 的 characters(人物记录)
+    # v4 actor info comes from the series extended record's characters
     def initialize(options = {})
       @id = options["peopleId"] || options["id"]
       @name = options["personName"]

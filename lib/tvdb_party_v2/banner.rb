@@ -2,7 +2,7 @@ module TvdbPartyV2
   class Banner
     attr_accessor :banner_type, :banner_resolution, :subkey, :path, :thumbnail_path, :ratingaverage, :ratingcount, :season_id
 
-    # v4 的图片记录(artwork):image/thumbnail 为路径,type 为整数类型 id
+    # v4 artwork record: image/thumbnail are paths, type is an integer type id
     def initialize(options = {})
       @banner_type = options["type"]
       @banner_resolution = options["width"] && options["height"] ? "#{options["width"]}x#{options["height"]}" : nil
@@ -16,7 +16,7 @@ module TvdbPartyV2
         @ratingaverage = 0
       end
 
-      @ratingcount = 0 # v4 不再提供评分计数
+      @ratingcount = 0 # v4 no longer provides rating counts
     end
 
     def url

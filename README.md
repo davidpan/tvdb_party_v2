@@ -60,6 +60,13 @@ puts homeland.series_banners.first.url
 puts homeland.season_posters(2).first.url
 => "https://www.thetvdb.com/banners/seasons/247897-2.jpg"
 
+# v4 new: movies (v4-only entity)
+movies = @thetvdb.movies
+movie = @thetvdb.get_movie_by_id(12345)
+
+# v4 new: season detail with episodes
+season = @thetvdb.get_season_by_id(46249)
+
 ```
 
 ## Development
