@@ -1,6 +1,6 @@
 # TvdbPartyV2
 
-[![Gem Version](https://badge.fury.io/rb/tvdb_party_v2.svg)](https://badge.fury.io/rb/tvdb_party_v2) [![Dependency Status](https://beta.gemnasium.com/badges/github.com/davidpan/tvdb_party_v2.svg)](https://beta.gemnasium.com/projects/github.com/davidpan/tvdb_party_v2)
+[![Gem Version](https://badge.fury.io/rb/tvdb_party_v2.svg)](https://badge.fury.io/rb/tvdb_party_v2)
 
 Simple Ruby library to talk to thetvdb.com API v4. Migrated from the deprecated v2 API (the gem name is kept for continuity). Requires Ruby >= 3.0; tested on Ruby 3.4 and 4.0.
 
@@ -44,21 +44,17 @@ puts homeland = @thetvdb.get_series_by_id(r.first["id"])
 # get episode
 puts s01e01 = homeland.episode(1,1)
 
-#get series fanart – pass in your language
-puts homeland.fanart.first.url
-=> "https://www.thetvdb.com/banners/fanart/original/247897-18.jpg"
+# get series fanart (banner URLs are built as https://www.thetvdb.com/banners/ + the artwork path)
+homeland.fanart.first.url
 
-#get series posters
-puts homeland.posters.first.url
-=> "https://www.thetvdb.com/banners/seasons/247897-1.jpg"
+# get series posters
+homeland.posters.first.url
 
-#get series banners
-puts homeland.series_banners.first.url
-=> "https://www.thetvdb.com/banners/graphical/247897-g.jpg"
+# get series banners
+homeland.series_banners.first.url
 
-#get season posters
-puts homeland.season_posters(2).first.url
-=> "https://www.thetvdb.com/banners/seasons/247897-2.jpg"
+# get season posters (filtered by season number)
+homeland.season_posters(2).first.url
 
 # v4 new: movies (v4-only entity)
 movies = @thetvdb.movies
@@ -85,11 +81,11 @@ The gem is available as open source under the terms of the [MIT License](https:/
 
 ## Code of Conduct
 
-Everyone interacting in the TvdbPartyV2 project’s codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/[USERNAME]/tvdb_party_v2/blob/master/CODE_OF_CONDUCT.md).
+Everyone interacting in the TvdbPartyV2 project’s codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/davidpan/tvdb_party_v2/blob/master/CODE_OF_CONDUCT.md).
 
 ## Thanks
 
 Project Derived from maddox/tvdb_party.
 
-Thanks to thetvdb.com for their awesome database allowing us to meta out to our hearts consent.
+Thanks to thetvdb.com for their awesome database allowing us to meta out to our heart's content.
 Project name graciously stolen from jduff/tmdb_party.
