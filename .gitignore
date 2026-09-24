@@ -11,3 +11,6 @@
 # Markdown docs
 *.md
 !README.md
+
+# Credentials
+.env*
