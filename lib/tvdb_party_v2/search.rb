@@ -1,5 +1,8 @@
 module TvdbPartyV2
 
+  # Raised when the v4 login is rejected (bad apikey/pin or inactive key)
+  class LoginError < StandardError; end
+
   class Search
     include HTTParty
     base_uri 'https://api4.thetvdb.com/v4'
@@ -11,8 +14,12 @@ module TvdbPartyV2
       @language = language
       body = { "apikey" => apikey }
       body["pin"] = pin unless pin.nil? || pin.to_s.empty?
-      thetvdb = self.class.post('/login', :body => body.to_json)
-      @token = thetvdb.dig('data', 'token')
+      response = self.class.post('/login', :body => body.to_json)
+      @token = response.dig('data', 'token')
+      if @token.nil?
+        status = response.response&.code
+        raise LoginError, "TheTVDB login failed (HTTP #{status}): #{response.parsed_response.to_s[0, 200]}"
+      end
     end
 
     # Search series (or movies via type: 'movie') by name

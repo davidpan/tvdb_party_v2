@@ -325,6 +325,16 @@ class TvdbPartyV2Test < Minitest::Test
     assert_equal 4079947, season.episodes.first.id
   end
 
+  def test_login_failure_raises
+    stub_request(:post, "#{BASE}/login")
+      .to_return(status: 401, headers: { 'Content-Type' => 'application/json' },
+                 body: JSON.dump({ "status" => "invalid credentials" }))
+    error = assert_raises(TvdbPartyV2::LoginError) do
+      TvdbPartyV2::Search.new("BADKEY")
+    end
+    assert_match(/401/, error.message, "error message carries the HTTP status")
+  end
+
   def test_thumb_url_no_double_cache_prefix
     banner = TvdbPartyV2::Banner.new({ "image" => "posters/x.jpg", "thumbnail" => "_cache/posters/x_t.jpg" })
     assert_equal "https://www.thetvdb.com/banners/_cache/posters/x_t.jpg", banner.thumb_url
@@ -350,5 +360,30 @@ class TvdbPartyV2Test < Minitest::Test
     posters = @series.season_posters(1)
     assert_equal 1, posters.size, "season subkey filtered via seasonId mapping"
     assert_equal "1", posters.first.subkey
+  end
+end
+
+# 真机联调测试:仅当设置 TVDB_API_KEY 时运行(需可达 api4.thetvdb.com 的网络);
+# 默认(无凭据)自动跳过,保持离线 mock 跑法。connection failure = 验证失败,不静默。
+class TvdbPartyV2LiveTest < Minitest::Test
+  def setup
+    skip "TVDB_API_KEY not set; live tests skipped" unless ENV["TVDB_API_KEY"]
+    # 仅放行 api4,其余真实连接仍被拦截
+    WebMock.disable_net_connect!(allow: "api4.thetvdb.com")
+    @thetvdb = TvdbPartyV2::Search.new(ENV["TVDB_API_KEY"], ENV["TVDB_PIN"], ENV["TVDB_LANGUAGE"] || 'en')
+  end
+
+  def test_live_login
+    refute_nil @thetvdb.token, "login returns a token"
+  end
+
+  def test_live_search
+    results = @thetvdb.search("Homeland")
+    assert results.size > 0, "search finds Homeland"
+  end
+
+  def test_live_get_series
+    series = @thetvdb.get_series_by_id(247897) # Homeland
+    assert_equal "Homeland", series&.name
   end
 end
