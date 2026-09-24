@@ -10,3 +10,4 @@
 
 # Markdown docs
 *.md
+!README.md
